@@ -14,7 +14,22 @@ Skrypty do raportu `../artifact-1-territory.md`. Uruchamiaj z katalogu główneg
 | 8. Wspólne pliki całego repo | `python3 context/map/scripts/hub.py /tmp/kept.pkl` | stdout |
 | 9. Usunięte pliki i pary na żywych plikach | `python3 context/map/scripts/exist.py /tmp/kept.pkl` | stdout |
 
-Dane z GitHuba (tylko odczyt, upstream `ta4j/ta4j`):
+## Struktura zależności (jdeps) – raport `../artifact-2-structure.md`
+
+Wymaga skompilowanych klas: `mvn -pl ta4j-core,ta4j-examples -am compile`.
+
+| Krok | Polecenie | Wynik |
+|---|---|---|
+| 10. Cykle (SCC, najmniejsze pętle runtime, sploty pakietów) | `python3 context/map/scripts/jdeps_cycles.py /tmp/jd` | stdout + `jdeps_cycles.json` |
+| 11. Granice warstw (model L0–L7 na górze skryptu) | `python3 context/map/scripts/jdeps_layers.py /tmp/jd` | stdout + `jdeps_layers.json` |
+| 12. Podgraf kontraktów `core` | `python3 context/map/scripts/jdeps_focus_graph.py /tmp/kept.pkl context/map/graphs/core-contracts-upward.dot` | plik `.dot` |
+| 13. Render SVG | `dot -Tsvg in.dot -o out.svg` albo bez Graphviza: `node context/map/scripts/render_svg.mjs <katalog z @hpcc-js/wasm-graphviz> in.dot out.svg` | plik `.svg` |
+
+Krawędź „runtime” to realne użycie w bajtkodzie (`javap`): dziedziczenie, `new`, wywołanie, pole, rzutowanie, `catch`, referencja metody. Pozostałe krawędzie z jdeps to same typy.
+
+## Dane z GitHuba
+
+Tylko odczyt, upstream `ta4j/ta4j`:
 
 ```sh
 gh pr list -R ta4j/ta4j --state closed --limit 300 --search "is:unmerged closed:>=2025-10-30" --json number,title,closedAt,author,headRefName,files
